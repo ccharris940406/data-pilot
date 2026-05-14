@@ -1,0 +1,37 @@
+from os import getenv
+from typing import final
+
+
+@final
+class LLMConfig:
+    def __init__(self):
+        self.llm_provider = getenv("LLM_PROVIDER", "openai").lower()
+        self.embedding_provider = getenv("EMBEDDING_PROVIDER", "openai").lower()
+
+    def _get_config(self, provider: str, suffix: str) -> str | None:
+        return getenv(f"{provider.upper()}_{suffix}")
+
+    def get_llm_config(self) -> dict[str, str]:
+        api_key = self._get_config(self.llm_provider, "API_KEY")
+        model = self._get_config(self.llm_provider, "MODEL")
+        embedding_api_key = self._get_config(self.embedding_provider, "API_KEY")
+        embedding_model = self._get_config(self.embedding_provider, "EMBEDDING_MODEL")
+
+        if not api_key or not model:
+            raise ValueError(f"LLM configuration for {self.llm_provider} is incomplete")
+        if not embedding_api_key or not embedding_model:
+            raise ValueError(
+                f"Embedding configuration for {self.embedding_provider} is incomplete"
+            )
+
+        return {
+            "provider": self.llm_provider,
+            "api_key": api_key,
+            "model": model,
+            "embedding_provider": self.embedding_provider,
+            "embedding_api_key": embedding_api_key,
+            "embedding_model": embedding_model,
+        }
+
+
+llm_config = LLMConfig()
