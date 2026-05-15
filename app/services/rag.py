@@ -21,25 +21,8 @@ class RAGService:
             table_name = first_line.replace("Table: ", "").split(",")[0].strip()
             retrieved_tables.add(table_name)
 
-        all_tables = set(retrieved_tables)
-        # traversal directo
-        for table in retrieved_tables:
-            if table in schema:
-                for col in schema[table]:
-                    if col["type"] == "foreign_key" and "->" in col["name"]:
-                        referred = col["name"].split("->")[1].split(".")[0].strip()
-                        all_tables.add(referred)
-
-        # traversal inverso
-        for table, cols in schema.items():
-            for col in cols:
-                if col["type"] == "foreign_key" and "->" in col["name"]:
-                    referred = col["name"].split("->")[1].split(".")[0].strip()
-                    if referred in retrieved_tables:
-                        all_tables.add(table)
-
         context: list[str] = []
-        for table in all_tables:
+        for table in retrieved_tables:
             if table in schema:
                 col_str = ", ".join(f"{c['name']} ({c['type']})" for c in schema[table])
                 context.append(f"Table: {table}\nColumns: {col_str}")
