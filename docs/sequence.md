@@ -15,16 +15,16 @@
   'noteBkgColor': '#533483',
   'noteTextColor': '#ffffff',
   'activationBkgColor': '#0f3460',
-  'activationBorderColor': '#e94560',
-  'sequenceNumberColor': '#ffffff'
+  'activationBorderColor': '#e94560'
 }}}%%
 
 sequenceDiagram
     actor User
     participant Chat as ChatAgent
     participant NL2SQL as NL2SQLAgent
-    participant Meta as MetadataExtractor
+    participant SL as SemanticLayer
     participant RAG as RAGService
+    participant Meta as MetadataExtractor
     participant LLM
     participant Val as Validator
     participant Exec as SQLExecutor
@@ -51,14 +51,24 @@ sequenceDiagram
         Chat-->>User: respuesta
 
     else Requiere DB
+        rect rgb(45, 45, 45)
+            Note over NL2SQL,SL: Semantic Layer
+            NL2SQL->>SL: enrich(query)
+            SL-->>NL2SQL: query enriquecido
+        end
+
         rect rgb(27, 67, 50)
-            Note over NL2SQL,DB: Recuperación de schema via RAG
+            Note over NL2SQL,DB: Metadata + RAG con FK Traversal
             NL2SQL->>Meta: extract()
-            Meta->>DB: inspect schema
-            DB-->>Meta: tablas y columnas
+            Meta->>DB: inspect schema + foreign keys
+            DB-->>Meta: tablas, columnas, FKs
             Meta-->>NL2SQL: TableSchema
-            NL2SQL->>RAG: retrieve(query)
-            RAG-->>NL2SQL: tablas relevantes
+
+            NL2SQL->>RAG: retrieve(enriched_query, schema)
+            Note over RAG: Búsqueda semántica inicial
+            Note over RAG: FK Traversal Directo
+            Note over RAG: FK Traversal Inverso
+            RAG-->>NL2SQL: tablas relevantes + relacionadas
         end
 
         rect rgb(83, 52, 131)
@@ -69,7 +79,7 @@ sequenceDiagram
         end
 
         rect rgb(15, 52, 96)
-            Note over NL2SQL,Val: Validación sintáctica y semántica
+            Note over NL2SQL,Val: Validación
             NL2SQL->>Val: validate(sql, schema)
             Val-->>NL2SQL: ok / ValueError
         end

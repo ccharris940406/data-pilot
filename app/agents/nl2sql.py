@@ -8,6 +8,7 @@ from app.factory.llm import llm_factory
 from app.services.executor import sql_executor
 from app.services.metadata_extractor import metadata_extractor
 from app.services.rag import rag_service
+from app.services.semantic_layer import semantic_layer
 from app.services.validator import validator
 
 _SYSTEM_PROMPT = """You are an expert SQL translator for {dialect}.
@@ -42,6 +43,9 @@ class NL2SQLAgent:
     def __init__(self):
         self.llm = llm_factory.get_llm()
         self.schema = metadata_extractor.extract()
+        if not semantic_layer.path.exists():
+            semantic_layer.build(self.schema)
+            semantic_layer.load()
 
     def run(self, query: str) -> str:
         intent_prompt = ChatPromptTemplate.from_messages([("human", _INTENT_PROMPT)])
@@ -53,8 +57,11 @@ class NL2SQLAgent:
             response: BaseMessage = chain.invoke({"query": query})  # pyright: ignore[reportUnknownMemberType]
             return str(response.content)
 
+        enriched_query = semantic_layer.enrich(query)
+        context = rag_service.retrieve(enriched_query, self.schema)
+
         schema = metadata_extractor.extract()
-        context = rag_service.retrieve(query)
+        context = rag_service.retrieve(query, self.schema)
         schema_str = "\n\n".join(context)
 
         sql_prompt = ChatPromptTemplate.from_messages(

@@ -22,8 +22,18 @@ class MetadataExtractor:
 
         for table_name in inspector.get_table_names():
             columns: list[dict[str, str]] = []
+
             for col in inspector.get_columns(table_name):
                 columns.append({"name": col["name"], "type": str(col["type"])})
+
+            for fk in inspector.get_foreign_keys(table_name):
+                columns.append(
+                    {
+                        "name": f"FK: {fk['constrained_columns']} -> {fk['referred_table']}.{fk['referred_columns']}",
+                        "type": "foreign_key",
+                    }
+                )
+
             schema[table_name] = columns
 
         return schema
