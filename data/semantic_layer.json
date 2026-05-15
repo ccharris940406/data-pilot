@@ -1,29 +1,29 @@
 {
-  "Album": ["album", "disco"],
-  "Artist": ["artist", "musico", "artista", "banda"],
-  "Customer": ["comprador", "cliente", "customer"],
+  "Album": ["disco", "album"],
+  "Artist": ["artist", "artista", "banda", "musico"],
+  "Customer": ["customer", "cliente", "comprador"],
   "Employee": ["employee", "empleado", "trabajador"],
-  "Genre": ["genre", "estilo", "genero"],
-  "Invoice": ["factura", "venta", "invoice", "bill", "compra", "exito"],
+  "Genre": ["genero", "estilo", "genre"],
+  "Invoice": ["factura", "compra", "bill", "venta", "invoice", "exitos"],
   "InvoiceLine": [
     "factura",
-    "venta",
+    "compra",
     "invoice line",
-    "invoiceline",
     "bill",
-    "compra"
+    "venta",
+    "invoiceline"
   ],
-  "MediaType": ["formato", "medio", "media type", "mediatype"],
-  "Playlist": ["lista", "playlist"],
+  "MediaType": ["mediatype", "media type", "formato", "medio"],
+  "Playlist": ["playlist", "lista"],
   "PlaylistTrack": [
-    "tema",
-    "pista",
-    "playlisttrack",
     "cancion",
-    "lista",
     "playlist",
+    "tema",
+    "playlisttrack",
+    "lista",
+    "pista",
     "song",
     "playlist track"
   ],
-  "Track": ["tema", "pista", "track", "cancion", "song"]
+  "Track": ["cancion", "tema", "track", "pista", "song"]
 }
